@@ -247,6 +247,8 @@ pub struct CsvItemWriterBuilder<O> {
     /// Whether to include headers in the output (default: false)
     has_headers: bool,
     _pd: PhantomData<O>,
+    /// Wheter we are flexible with the clumn lenght (default: false)
+    flexible: bool,
 }
 
 impl<O> CsvItemWriterBuilder<O> {
@@ -274,6 +276,7 @@ impl<O> CsvItemWriterBuilder<O> {
             delimiter: b',',
             has_headers: false,
             _pd: PhantomData,
+            flexible: false,
         }
     }
 
@@ -352,6 +355,13 @@ impl<O> CsvItemWriterBuilder<O> {
         self
     }
 
+    /// Sets wheter to preform strict checking
+    /// of equal headers for each row tha is written to the file
+    pub fn flexible(mut self, yes: bool) -> Self {
+        self.flexible = yes;
+        self
+    }
+
     /// Creates a CSV item writer that writes to a file.
     ///
     /// # Parameters
@@ -400,7 +410,7 @@ impl<O> CsvItemWriterBuilder<O> {
     pub fn from_path<W: AsRef<Path>>(self, path: W) -> CsvItemWriter<O, File> {
         // Configure and create the CSV writer
         let writer = WriterBuilder::new()
-            .flexible(false) // Use strict formatting to detect serialization issues
+            .flexible(self.flexible) // Use strict formatting to detect serialization issues
             .has_headers(self.has_headers)
             .delimiter(self.delimiter)
             .from_path(path);
@@ -479,7 +489,7 @@ impl<O> CsvItemWriterBuilder<O> {
     pub fn from_writer<W: Write>(self, wtr: W) -> CsvItemWriter<O, W> {
         // Configure and create the CSV writer
         let wtr = WriterBuilder::new()
-            .flexible(false) // Use strict formatting to detect serialization issues
+            .flexible(self.flexible) // Use strict formatting to detect serialization issues
             .has_headers(self.has_headers)
             .delimiter(self.delimiter)
             .from_writer(wtr);
