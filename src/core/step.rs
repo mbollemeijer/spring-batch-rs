@@ -356,7 +356,7 @@ pub struct StepExecution {
     pub process_error_count: usize,
     /// Number of errors encountered during writing
     pub write_error_count: usize,
-
+    // Params for the job
     pub params: Option<HashMap<String, String>>,
 }
 
