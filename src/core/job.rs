@@ -82,6 +82,8 @@ pub struct JobExecution {
     pub end: Instant,
     /// The total duration of the job execution
     pub duration: Duration,
+
+    pub params: Option<HashMap<String, String>>,
 }
 
 /// Represents an instance of a job.
@@ -156,6 +158,7 @@ impl Job for JobInstance<'_> {
             start,
             end: Instant::now(),
             duration: start.elapsed(),
+            params: None,
         };
 
         Ok(job_execution)
@@ -223,6 +226,8 @@ pub struct JobBuilder<'a> {
     name: Option<String>,
     /// Collection of steps to be executed, in order
     steps: Vec<&'a dyn Step>,
+
+    params: Option<HashMap<String, String>>,
 }
 
 impl<'a> JobBuilder<'a> {
@@ -236,7 +241,13 @@ impl<'a> JobBuilder<'a> {
         Self {
             name: None,
             steps: Vec::new(),
+            params: None,
         }
+    }
+
+    pub fn params(mut self, params: HashMap<String, String>) -> Self {
+        self.params = Some(params);
+        self
     }
 
     /// Sets the name of the job.
