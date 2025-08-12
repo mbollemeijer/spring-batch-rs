@@ -107,6 +107,7 @@ pub struct JobInstance<'a> {
     steps: Vec<&'a dyn Step>,
     /// Step executions using interior mutability pattern
     executions: RefCell<HashMap<String, StepExecution>>,
+    params: Option<HashMap<String, String>>,
 }
 
 impl Job for JobInstance<'_> {
@@ -135,7 +136,8 @@ impl Job for JobInstance<'_> {
         let steps = &self.steps;
 
         for step in steps {
-            let mut step_execution = StepExecution::new(step.get_name());
+            let mut step_execution =
+                StepExecution::new(step.get_name()).with_params(self.params.clone());
 
             let result = step.execute(&mut step_execution);
 
@@ -152,13 +154,14 @@ impl Job for JobInstance<'_> {
 
         // Log the job completion
         info!("End of job: {}, id: {}", self.name, self.id);
+        info!("Params {:?}", self.params);
 
         // Create and return the job execution details
         let job_execution = JobExecution {
             start,
             end: Instant::now(),
             duration: start.elapsed(),
-            params: None,
+            params: self.params.clone(),
         };
 
         Ok(job_execution)
@@ -303,6 +306,7 @@ impl<'a> JobBuilder<'a> {
             name: self.name.unwrap_or(Uuid::new_v4().to_string()),
             steps: self.steps,
             executions: RefCell::new(HashMap::new()),
+            params: self.params,
         }
     }
 }

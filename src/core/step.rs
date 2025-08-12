@@ -91,7 +91,10 @@
 
 use crate::BatchError;
 use log::{debug, error, info, warn};
-use std::time::{Duration, Instant};
+use std::{
+    collections::HashMap,
+    time::{Duration, Instant},
+};
 use uuid::Uuid;
 
 use super::item::{ItemProcessor, ItemReader, ItemWriter};
@@ -353,6 +356,8 @@ pub struct StepExecution {
     pub process_error_count: usize,
     /// Number of errors encountered during writing
     pub write_error_count: usize,
+
+    pub params: Option<HashMap<String, String>>,
 }
 
 impl StepExecution {
@@ -388,6 +393,25 @@ impl StepExecution {
             process_count: 0,
             process_error_count: 0,
             write_error_count: 0,
+            params: None,
+        }
+    }
+
+    pub fn with_params(&self, params: Option<HashMap<String, String>>) -> Self {
+        Self {
+            id: self.id,
+            name: self.name.clone(),
+            status: self.status,
+            start_time: self.start_time,
+            end_time: self.end_time,
+            duration: self.duration,
+            read_count: self.read_count,
+            write_count: self.write_count,
+            read_error_count: self.read_count,
+            process_count: self.process_count,
+            process_error_count: self.process_error_count,
+            write_error_count: self.write_count,
+            params: params,
         }
     }
 }
