@@ -397,6 +397,7 @@ impl StepExecution {
         }
     }
 
+    /// Adds parameters to the step
     pub fn with_params(&self, params: Option<HashMap<String, String>>) -> Self {
         Self {
             id: self.id,
